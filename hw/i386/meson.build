@@ -22,6 +22,7 @@ i386_ss.add(when: 'CONFIG_PC', if_true: files(
   'pc.c',
   'pc_sysfw.c',
   'acpi-build.c',
+  'sgx-epc.c',
   'port92.c'))
 
 subdir('kvm')
