@@ -50,6 +50,8 @@ struct PCMachineState {
 
     /* ACPI Memory hotplug IO base address */
     hwaddr memhp_io_base;
+
+    SGXEPCState *sgx_epc;
 };
 
 #define PC_MACHINE_ACPI_DEVICE_PROP "acpi-device"

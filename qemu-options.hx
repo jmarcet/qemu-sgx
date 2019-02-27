@@ -104,6 +104,10 @@ SRST
     ``hmat=on|off``
         Enables or disables ACPI Heterogeneous Memory Attribute Table
         (HMAT) support. The default is off.
+
+    ``epc=size``
+        Defines the maximum size of the guest's SGX EPC, required for
+        running SGX enclaves in the guest.  The default is 0.
 ERST
 
 HXCOMM Deprecated by -machine
@@ -507,6 +511,14 @@ DEF("mem-prealloc", 0, QEMU_OPTION_mem_prealloc,
 SRST
 ``-mem-prealloc``
     Preallocate memory when using -mem-path.
+ERST
+
+DEF("sgx-epc", HAS_ARG, QEMU_OPTION_sgx_epc,
+    "-sgx-epc memdev=memid[,id=epcid]\n",
+    QEMU_ARCH_I386)
+SRST
+``-sgx-epc memdev=@var{memid}[,id=@var{epcid}]``
+    Define an SGX EPC section.
 ERST
 
 DEF("k", HAS_ARG, QEMU_OPTION_k,

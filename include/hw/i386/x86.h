@@ -26,6 +26,7 @@
 #include "hw/nmi.h"
 #include "hw/isa/isa.h"
 #include "hw/i386/ioapic.h"
+#include "hw/i386/sgx-epc.h"
 
 typedef struct {
     /*< private >*/
