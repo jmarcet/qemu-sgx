@@ -123,6 +123,7 @@ enum vga_retrace_method vga_retrace_method = VGA_RETRACE_DUMB;
 int display_opengl;
 const char* keyboard_layout = NULL;
 ram_addr_t ram_size;
+int sgx_epc_enabled;
 bool enable_mlock = false;
 bool enable_cpu_pm = false;
 int nb_nics;
@@ -3172,6 +3173,14 @@ void qemu_init(int argc, char **argv, char **envp)
                 break;
             case QEMU_OPTION_mem_prealloc:
                 mem_prealloc = 1;
+                break;
+            case QEMU_OPTION_sgx_epc:
+                opts = qemu_opts_parse_noisily(qemu_find_opts("sgx-epc"),
+                                               optarg, false);
+                if (!opts) {
+                    exit(1);
+                }
+                sgx_epc_enabled = 1;
                 break;
             case QEMU_OPTION_d:
                 log_mask = optarg;

@@ -26,6 +26,7 @@
 #include "hw/nmi.h"
 #include "hw/isa/isa.h"
 #include "hw/i386/ioapic.h"
+#include "hw/i386/sgx-epc.h"
 
 typedef struct {
     /*< private >*/
@@ -77,6 +78,8 @@ typedef struct {
      * will be translated to MSI messages in the address space.
      */
     AddressSpace *ioapic_as;
+
+    SGXEPCState *sgx_epc;
 } X86MachineState;
 
 #define X86_MACHINE_SMM              "smm"
