@@ -1867,9 +1867,9 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
         aml_append(sb_scope, dev);
     }
 
-    if (pcms->sgx_epc) {
-        uint64_t epc_base = pcms->sgx_epc->base;
-        uint64_t epc_size = pcms->sgx_epc->size;
+    if (x86ms->sgx_epc) {
+        uint64_t epc_base = x86ms->sgx_epc->base;
+        uint64_t epc_size = x86ms->sgx_epc->size;
 
         dev = aml_device("EPC");
         aml_append(dev, aml_name_decl("_HID", aml_eisaid("INT0E0C")));

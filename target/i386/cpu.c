@@ -1316,6 +1316,66 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         }
     },
 
+    [FEAT_SGX_12_0_EAX] = {
+        .type = CPUID_FEATURE_WORD,
+        .feat_names = {
+            "sgx1", "sgx2", NULL, NULL,
+            NULL, "sgx-enclv", "sgx-encls-c", NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+        },
+        .cpuid = {
+            .eax = 0x12,
+            .needs_ecx = true, .ecx = 0,
+            .reg = R_EAX,
+        },
+        .tcg_features = TCG_SGX_12_0_EAX_FEATURES,
+    },
+
+    [FEAT_SGX_12_1_EAX] = {
+        .type = CPUID_FEATURE_WORD,
+        .feat_names = {
+            NULL /* sgx-init */, "sgx-debug", "sgx-mode64", NULL,
+            "sgx-provisionkey", "sgx-tokenkey", NULL, "sgx-kss",
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+        },
+        .cpuid = {
+            .eax = 0x12,
+            .needs_ecx = true, .ecx = 1,
+            .reg = R_EAX,
+        },
+        .tcg_features = TCG_SGX_12_1_EAX_FEATURES,
+    },
+
+    [FEAT_SGX_12_1_EBX] = {
+        .type = CPUID_FEATURE_WORD,
+        .feat_names = {
+            "sgx-exinfo" , NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+        },
+        .cpuid = {
+            .eax = 0x12,
+            .needs_ecx = true, .ecx = 1,
+            .reg = R_EBX,
+        },
+        .tcg_features = TCG_SGX_12_1_EBX_FEATURES,
+    },
+
 };
 
 typedef struct FeatureMask {
@@ -1411,63 +1471,6 @@ static FeatureDep feature_dependencies[] = {
     {
         .from = { FEAT_8000_0001_ECX,       CPUID_EXT3_SVM },
         .to = { FEAT_SVM,                   ~0ull },
-    },
-    [FEAT_SGX_12_0_EAX] = {
-        .type = CPUID_FEATURE_WORD,
-        .feat_names = {
-            "sgx1", "sgx2", NULL, NULL,
-            NULL, "sgx-enclv", "sgx-encls-c", NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-        },
-        .cpuid = {
-            .eax = 0x12,
-            .needs_ecx = true, .ecx = 0,
-            .reg = R_EAX,
-        },
-        .tcg_features = TCG_SGX_12_0_EAX_FEATURES,
-    },
-    [FEAT_SGX_12_1_EAX] = {
-        .type = CPUID_FEATURE_WORD,
-        .feat_names = {
-            NULL /* sgx-init */, "sgx-debug", "sgx-mode64", NULL,
-            "sgx-provisionkey", "sgx-tokenkey", NULL, "sgx-kss",
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-        },
-        .cpuid = {
-            .eax = 0x12,
-            .needs_ecx = true, .ecx = 1,
-            .reg = R_EAX,
-        },
-        .tcg_features = TCG_SGX_12_1_EAX_FEATURES,
-    },
-    [FEAT_SGX_12_1_EBX] = {
-        .type = CPUID_FEATURE_WORD,
-        .feat_names = {
-            "sgx-exinfo" , NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-        },
-        .cpuid = {
-            .eax = 0x12,
-            .needs_ecx = true, .ecx = 1,
-            .reg = R_EBX,
-        },
-        .tcg_features = TCG_SGX_12_1_EBX_FEATURES,
     },
 };
 

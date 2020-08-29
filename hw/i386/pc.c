@@ -957,7 +957,7 @@ void pc_memory_init(PCMachineState *pcms,
                                     ram_above_4g);
         e820_add_entry(0x100000000ULL, x86ms->above_4g_mem_size, E820_RAM);
     }
-    if (pcms->sgx_epc != NULL) {
+    if (x86ms->sgx_epc != NULL) {
         e820_add_entry(x86ms->sgx_epc->base, x86ms->sgx_epc->size, E820_RESERVED);
     }
 
@@ -991,11 +991,11 @@ void pc_memory_init(PCMachineState *pcms,
             exit(EXIT_FAILURE);
         }
 
-        if (sgx_epc_above_4g(pcms->sgx_epc)) {
-            machine->device_memory->base = sgx_epc_above_4g_end(pcms->sgx_epc);
+        if (sgx_epc_above_4g(x86ms->sgx_epc)) {
+            machine->device_memory->base = sgx_epc_above_4g_end(x86ms->sgx_epc);
         } else {
             machine->device_memory->base =
-                0x100000000ULL + pcms->above_4g_mem_size;
+                0x100000000ULL + x86ms->above_4g_mem_size;
         }
         machine->device_memory->base =
             ROUND_UP(machine->device_memory->base, 1 * GiB);
@@ -1083,8 +1083,8 @@ uint64_t pc_pci_hole64_start(void)
         if (!pcmc->broken_reserved_end) {
             hole64_start += memory_region_size(&ms->device_memory->mr);
         }
-    } else if (sgx_epc_above_4g(pcms->sgx_epc)) {
-            hole64_start = sgx_epc_above_4g_end(pcms->sgx_epc);
+    } else if (sgx_epc_above_4g(x86ms->sgx_epc)) {
+            hole64_start = sgx_epc_above_4g_end(x86ms->sgx_epc);
     } else {
         hole64_start = 0x100000000ULL + x86ms->above_4g_mem_size;
     }

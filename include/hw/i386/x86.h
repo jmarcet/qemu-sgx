@@ -78,6 +78,8 @@ typedef struct {
      * will be translated to MSI messages in the address space.
      */
     AddressSpace *ioapic_as;
+
+    SGXEPCState *sgx_epc;
 } X86MachineState;
 
 #define X86_MACHINE_SMM              "smm"

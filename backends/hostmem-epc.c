@@ -15,6 +15,7 @@
 #include "qemu-common.h"
 #include "qom/object_interfaces.h"
 #include "qapi/error.h"
+#include "hw/qdev-properties.h"
 #include "sysemu/hostmem.h"
 
 #define TYPE_MEMORY_BACKEND_EPC "memory-backend-epc"
@@ -38,7 +39,6 @@ sgx_epc_backend_memory_alloc(HostMemoryBackend *backend, Error **errp)
         error_setg(errp, "can't create backend with size 0");
         return;
     }
-    backend->force_prealloc = mem_prealloc;
 
     fd = open("/dev/sgx/virt_epc", O_RDWR);
     if (fd < 0) {

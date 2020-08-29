@@ -13,6 +13,8 @@
 #include "hw/i386/pc.h"
 #include "hw/i386/sgx-epc.h"
 #include "hw/mem/memory-device.h"
+#include "hw/qdev-properties.h"
+#include "exec/address-spaces.h"
 #include "monitor/qdev.h"
 #include "qapi/error.h"
 #include "qapi/visitor.h"
@@ -47,17 +49,17 @@ static void sgx_epc_get_size(Object *obj, Visitor *v, const char *name,
 static void sgx_epc_init(Object *obj)
 {
     object_property_add(obj, SGX_EPC_SIZE_PROP, "uint64", sgx_epc_get_size,
-                        NULL, NULL, NULL, &error_abort);
+                        NULL, NULL, &error_abort);
 }
 
 static void sgx_epc_realize(DeviceState *dev, Error **errp)
 {
-    PCMachineState *pcms = PC_MACHINE(qdev_get_machine());
+    X86MachineState *x86ms = X86_MACHINE(qdev_get_machine());
     MemoryDeviceState *md = MEMORY_DEVICE(dev);
-    SGXEPCState *sgx_epc = pcms->sgx_epc;
+    SGXEPCState *sgx_epc = x86ms->sgx_epc;
     SGXEPCDevice *epc = SGX_EPC(dev);
 
-    if (pcms->boot_cpus != 0) {
+    if (x86ms->boot_cpus != 0) {
         error_setg(errp,
             "'" TYPE_SGX_EPC "' can't be created after vCPUs, e.g. via -device");
         return;
@@ -67,7 +69,7 @@ static void sgx_epc_realize(DeviceState *dev, Error **errp)
         error_setg(errp, "'" SGX_EPC_MEMDEV_PROP "' property is not set");
         return;
     } else if (host_memory_backend_is_mapped(epc->hostmem)) {
-        char *path = object_get_canonical_path_component(OBJECT(epc->hostmem));
+        char *path = g_strdup(object_get_canonical_path_component(OBJECT(epc->hostmem)));
         error_setg(errp, "can't use already busy memdev: %s", path);
         g_free(path);
         return;
@@ -87,7 +89,7 @@ static void sgx_epc_realize(DeviceState *dev, Error **errp)
     sgx_epc->size += memory_device_get_region_size(md, errp);
 }
 
-static void sgx_epc_unrealize(DeviceState *dev, Error **errp)
+static void sgx_epc_unrealize(DeviceState *dev)
 {
     SGXEPCDevice *epc = SGX_EPC(dev);
 
@@ -104,7 +106,7 @@ static uint64_t sgx_epc_md_get_addr(const MemoryDeviceState *md)
 static void sgx_epc_md_set_addr(MemoryDeviceState *md, uint64_t addr,
                                 Error **errp)
 {
-    object_property_set_uint(OBJECT(md), addr, SGX_EPC_ADDR_PROP, errp);
+    object_property_set_uint(OBJECT(md), SGX_EPC_ADDR_PROP, addr, errp);
 }
 
 static uint64_t sgx_epc_md_get_plugged_size(const MemoryDeviceState *md,
@@ -140,8 +142,8 @@ static void sgx_epc_class_init(ObjectClass *oc, void *data)
     dc->hotpluggable = false;
     dc->realize = sgx_epc_realize;
     dc->unrealize = sgx_epc_unrealize;
-    dc->props = sgx_epc_properties;
     dc->desc = "SGX EPC section";
+    device_class_set_props(dc, sgx_epc_properties);
 
     mdc->get_addr = sgx_epc_md_get_addr;
     mdc->set_addr = sgx_epc_md_set_addr;
@@ -172,14 +174,14 @@ type_init(sgx_epc_register_types)
 
 int sgx_epc_get_section(int section_nr, uint64_t *addr, uint64_t *size)
 {
-    PCMachineState *pcms = PC_MACHINE(qdev_get_machine());
+    X86MachineState *x86ms = X86_MACHINE(qdev_get_machine());
     SGXEPCDevice *epc;
 
-    if (pcms->sgx_epc == NULL || pcms->sgx_epc->nr_sections <= section_nr) {
+    if (x86ms->sgx_epc == NULL || x86ms->sgx_epc->nr_sections <= section_nr) {
         return 1;
     }
 
-    epc = pcms->sgx_epc->sections[section_nr];
+    epc = x86ms->sgx_epc->sections[section_nr];
 
     *addr = epc->addr;
     *size = memory_device_get_region_size(MEMORY_DEVICE(epc), &error_fatal);
@@ -215,7 +217,7 @@ static int sgx_epc_init_func(void *opaque, QemuOpts *opts, Error **errp)
         goto out;
     }
 
-    object_property_set_bool(obj, true, "realized", &err);
+    object_property_set_bool(obj, "realized", true, &err);
 
 out:
     if (err != NULL) {
@@ -227,6 +229,7 @@ out:
 
 void pc_machine_init_sgx_epc(PCMachineState *pcms)
 {
+    X86MachineState *x86ms = X86_MACHINE(pcms);
     SGXEPCState *sgx_epc;
 
     if (!sgx_epc_enabled) {
@@ -234,11 +237,11 @@ void pc_machine_init_sgx_epc(PCMachineState *pcms)
     }
 
     sgx_epc = g_malloc0(sizeof(*sgx_epc));
-    pcms->sgx_epc = sgx_epc;
+    x86ms->sgx_epc = sgx_epc;
 
-    sgx_epc->base = 0x100000000ULL + pcms->above_4g_mem_size;
+    sgx_epc->base = 0x100000000ULL + x86ms->above_4g_mem_size;
 
-    memory_region_init(&sgx_epc->mr, OBJECT(pcms), "sgx-epc", UINT64_MAX);
+    memory_region_init(&sgx_epc->mr, OBJECT(x86ms), "sgx-epc", UINT64_MAX);
     memory_region_add_subregion(get_system_memory(), sgx_epc->base,
                                 &sgx_epc->mr);
 
